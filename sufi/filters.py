@@ -13,7 +13,7 @@ def display_image(img):
     cv.imshow("img", img)
     cv.waitKey(0)
 
-def balck_and_white(img):
+def black_and_white(img):
     img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     return img_gray
 
