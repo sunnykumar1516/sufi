@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 
-
+# adding constant values
 vignette_filter_level = 9
 blur_filter_kernel = 5
 HDR_filter_sigma_s = 10
