@@ -16,6 +16,7 @@ canny_filter_up = 120
 bright_filter_level = 3
 
 
+#display image function
 def display_image_at_path(path):
     img = cv.imread(path)
     cv.imshow("img", img)
