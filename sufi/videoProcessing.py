@@ -22,6 +22,7 @@ def display_image_at_path(path):
     cv.imshow("img", img)
     cv.waitKey(0)
 
+# save image function
 def save_image(img=None,filename="test.jpg"):
     cv.imwrite(filename, img)
 
