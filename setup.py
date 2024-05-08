@@ -17,7 +17,8 @@ setuptools.setup(
 	python_requires='>=3.8',
 	install_requires=[
         'numpy>= 1.2',
-        'opencv-python>=4'
+        'opencv-python>=4',
+		'mediapipe == 0.10.5'
 
     ]
 )

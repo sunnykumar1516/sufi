@@ -1,5 +1,7 @@
 import cv2 as cv
 import numpy as np
+import utility as ut
+import mediapipe as mp
 
 def display_image_at_path(path):
     img = cv.imread(path)
@@ -65,6 +67,142 @@ def canny_filter(img,blur=3,lw = 100, up=120):
 def bright_filter(img, level=3):
     img_bright = cv.convertScaleAbs(img, beta = level)
     return img_bright
+
+
+
+#-------- filters for super hero-----
+
+
+mp_pose = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
+mp_drawing_styles = mp.solutions.drawing_styles
+mp_hands = mp.solutions.hands
+hands = mp_pose.Hands()
+circle = cv.imread("red.png", -1)
+full_circle = cv.imread("pentagram.png", -1)
+shield = cv.imread("shield.png", -1)
+
+
+def apply_spell():
+    rotation = 0
+    
+    cap = cv.VideoCapture(0)
+    cap.set(3, 1280)
+    cap.set(4, 720)
+    while cap.isOpened():
+        size = (300, 300)
+        size_out = (500, 500)
+        _, frame = cap.read()
+        frame = cv.flip(frame, 1)
+        height, width, _ = frame.shape
+        results = hands.process(cv.cvtColor(frame, cv.COLOR_BGR2RGB))
+        
+        if results.multi_hand_landmarks:
+            for hand in results.multi_hand_landmarks:
+                positions = []
+                for index, item in enumerate(hand.landmark):
+                    h, w, _ = frame.shape
+                    positions.append([int(item.x * w), int(item.y * h), item.z])
+            
+            '''for hand_landmarks in results.multi_hand_landmarks:
+                mp_drawing.draw_landmarks(frame,
+                                          hand_landmarks,
+                                          connections=mp_hands.HAND_CONNECTIONS)'''
+            
+            index = (positions[8][0], positions[8][1])
+            thumb = (positions[4][0], positions[4][1])
+            centre = (positions[9][0], positions[9][1])
+            index_top = (positions[7][0], positions[7][1])
+            cx, cy = centre[0], centre[1]
+            frame = ut.draw_circle(frame, centre)
+            rotation = rotation + 3
+            
+            frame = ut.highlight_line(frame, index, thumb)
+            frame = ut.highlight_line(frame, index_top, thumb)
+            distance = ut.get_distance(index, thumb)
+            distance2 = ut.get_distance(index_top, thumb)
+            print("shield dist:-", distance2)
+            
+            if distance > 200:
+                print("got you")
+                
+                # inner circle
+                h, w, _ = circle.shape
+                cen = (h // 2, w // 2)
+                cx = cx - cen[1] + 100
+                cy = cy - cen[0] + 100
+                
+                # outer circle
+                h_out, w_out, _ = full_circle.shape
+                cen_out = (h_out // 2, w_out // 2)
+                cx_out = centre[0] - cen_out[1] + 260
+                cy_out = centre[1] - cen_out[0] + 260
+                
+                size_out = (500, 500)
+                if (cx + 300 > width or cy + 300 > height):
+                    size = ut.resize_img(cx, width, cy, height)
+                if (cx_out + 400 > width or cy_out + 400 > height):
+                    size_out = ut.resize_img(cx_out, width, cy_out, height, size=size_out)
+                
+                r1 = rotate_img(cen, rotation, circle, w, h)
+                r2 = rotate_img(cen_out, (360 - rotation), full_circle, w_out, h_out)
+                try:
+                    
+                    frame = ut.apply_stange_Filter(r1,
+                                                   frame,
+                                                   x=cx,
+                                                   y=cy,
+                                                   size=size)
+                    
+                    frame = ut.apply_stange_Filter(r2,
+                                                   frame,
+                                                   x=cx_out,
+                                                   y=cy_out,
+                                                   size=size_out)
+                
+                except:
+                    print("some error")
+            
+            if (distance2 < 30):
+                # inner circle
+                h, w, _ = shield.shape
+                cen = (h // 2, w // 2)
+                cx = cx - cen[1] + 400
+                cy = cy - cen[0] - 200
+                
+                size = (500, 500)
+                if (cx + 500 > width or cy + 500 > height):
+                    size = ut.resize_img(cx, width, cy, height)
+                try:
+                    r1_shield = rotate_img(cen, rotation, shield, w, h)
+                    frame = ut.apply_stange_Filter(r1_shield,
+                                                   frame,
+                                                   x=cx,
+                                                   y=cy,
+                                                   size=size)
+                except Exception as e:
+                    print(str(e))
+        
+        cv.imshow("Image", frame)
+        if cv.waitKey(1) == ord("q"):
+            break
+    
+    cap.release()
+    cv.destroyAllWindows()
+
+
+def rotate_img(cen, rotation, circle, w, h):
+    rotate_1 = cv.getRotationMatrix2D(cen, round(rotation), 1.0)
+    rotate_final = cv.warpAffine(circle, rotate_1, (w, h))
+    return rotate_final
+
+
+def get_position(cx, cy, img, offset=100):
+    h, w, _ = img.shape
+    cen = (h // 2, w // 2)
+    cx = cx - cen[1] + offset
+    cy = cy - cen[0] + offset
+    return cen, cx, cy
 
 
 

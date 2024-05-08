@@ -86,4 +86,67 @@ def bright_filter(img, level=bright_filter_level):
     return img_bright
 
 
+##-------------magic filter helper fun----------------------------
+
+def highlight_line(frame, p1, p2, color=(0, 255, 255), size=3):
+    cv.line(frame, p1, p2, color, size)
+    return frame
+
+
+def apply_stange_Filter(targetImg, frame, x, y, size=None):
+    if size is not None:
+        targetImg = cv.resize(targetImg, size)
+    
+    newFrame = frame.copy()
+    b, g, r, a = cv.split(targetImg)
+    overlay_color = cv.merge((b, g, r))
+    mask = cv.medianBlur(a, 1)
+    h, w, _ = overlay_color.shape
+    roi = newFrame[y:y + h, x:x + w]
+    
+    img1_bg = cv.bitwise_and(roi.copy(), roi.copy(), mask=cv.bitwise_not(mask))
+    img2_fg = cv.bitwise_and(overlay_color, overlay_color, mask=mask)
+    newFrame[y:y + h, x:x + w] = cv.add(img1_bg, img2_fg)
+    return newFrame
+
+
+def resize_img(cx, width, cy, height, size=(300, 300)):
+    x1 = (cx + 300 - width)
+    y1 = (cy + 300 - height)
+    if (cx + 300 > width):
+        size = (300 - x1, 300 - x1)
+    elif (cy + 300 > height):
+        size = (300 - y1, 300 - y1)
+    
+    print("current size:", size)
+    return size
+
+
+def get_distance(p1, p2):
+    distance = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
+    return distance
+
+
+def get_size(z, size=0):
+    size = 0
+    if (z > 0):
+        z = abs(z)
+        size = int(z * 100)
+    elif (z <= 0):
+        z = abs(z)
+        size = int(z * 1000)
+    return size
+
+
+def draw_circle(frame, center):
+    radius = 10
+    color = (0, 255, 200)
+    thick = -1
+    img = cv.circle(frame, center, radius, color, thick)
+    return img
+
+
+def chech_crash_condition():
+    print("ignore")
+
 
