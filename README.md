@@ -1,6 +1,7 @@
 # sufi : Do image and video manipulation ||apply filters|| extract frames||
 
 
+
 # how to use 
 ## install
 
@@ -9,6 +10,17 @@
    ## import and use
 
     from sufi import filters
+
+  # apply spell filters
+  	from sufi import filters
+	from sufi import utility
+
+	filters.apply_spell() # casting spell
+
+  # sample output
+<img width="1277" alt="spell" src="https://github.com/sunnykumar1516/sufi/assets/25007015/adfaae00-3ea4-4f98-a443-f0420ac41a49">
+<img width="1275" alt="shield" src="https://github.com/sunnykumar1516/sufi/assets/25007015/d8633d11-d084-47dc-96e3-1679e90cebd6">
+
 # original image
 
 <img width="560" alt="Screenshot 2023-03-16 at 12 45 51 AM" src="https://github.com/sunnykumar1516/sufi/assets/25007015/22e16e9b-674a-4eb1-8b70-bf850fc2d2ea">
